@@ -42,7 +42,6 @@ regd_users.post("/login", (req,res) => {
         req.session.authorization = {
             accessToken, username
         };
-        console.log(req.session.authorization);
         return res.status(200).send("User successfully logged in!");
     } else {
         return res.status(208).json({ message: "Invalid login. Double-Check your Username and Password."});
@@ -53,17 +52,32 @@ regd_users.post("/login", (req,res) => {
 regd_users.put("/auth/review/:isbn", (req, res) => {
     let author = req.session.authorization['username'];
     const rev = req.body.desc;
+    const isbn = req.params.isbn;
     if(!rev){
         return res.status(404).json({ message: "Please provide a review description."});
     }
-    let numReviews = books[req.params.isbn].reviews.keys.length;
+    for(let review in books[isbn].reviews){
+        if(books[isbn].reviews[review].author === author){
+            books[isbn].reviews[review].content = rev;
+            return res.status(200).json({
+                message: "Review successfully edited!",
+                author: author,
+                content: rev
+            });
+        }
+    }
+
+    let numReviews = Object.keys(books[req.params.isbn].reviews).length;
     console.log(numReviews);
     numReviews++;
     books[req.params.isbn].reviews[numReviews] = {
         "author": author,
         "content": rev
     };
-    return res.status(200).json({ message: "Review successfully created!"});
+    return res.status(200).json({ 
+        message: "Review successfully created!",
+        author: author,
+        content: rev});
 });
 
 module.exports.authenticated = regd_users;
