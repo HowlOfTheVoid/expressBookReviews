@@ -17,8 +17,8 @@ const userExists = (username) => {
 }
 
 public_users.post("/register", (req,res) => {
-    const username = req.query.username;
-    const password = req.query.password;
+    const username = req.body.username;
+    const password = req.body.password;
     
 
     if(username && password){

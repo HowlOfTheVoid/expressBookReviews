@@ -23,15 +23,10 @@ const authenticatedUser = (username,password)=>{ //returns boolean
 
 //only registered users can login
 regd_users.post("/login", (req,res) => {
-    let username, password;
-    if(req.body){
-        username = req.body.username;
-        password = req.body.password;
-    }
-    if(!username || !password) {
-        username = req.query.username;
-        password = req.query.password;
-    }
+    
+    let username = req.body.username;
+    let password = req.body.password;
+    
 
     if(!username || !password) {
         return res.status(404).json({ message: "Please provide a username and password."});
@@ -57,6 +52,18 @@ regd_users.post("/login", (req,res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
     let author = req.session.authorization['username'];
+    const rev = req.body.desc;
+    if(!rev){
+        return res.status(404).json({ message: "Please provide a review description."});
+    }
+    let numReviews = books[req.params.isbn].reviews.keys.length;
+    console.log(numReviews);
+    numReviews++;
+    books[req.params.isbn].reviews[numReviews] = {
+        "author": author,
+        "content": rev
+    };
+    return res.status(200).json({ message: "Review successfully created!"});
 });
 
 module.exports.authenticated = regd_users;
