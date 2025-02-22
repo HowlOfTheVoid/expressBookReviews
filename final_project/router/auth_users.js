@@ -51,7 +51,7 @@ regd_users.post("/login", (req,res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
 
-    let author = req.session.authorization['username'];
+    let reviewer = req.session.authorization['username'];
     const rev = req.body.desc;
     const isbn = req.params.isbn;
 
@@ -60,11 +60,11 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
     }
 
     for(let review in books[isbn].reviews){
-        if(books[isbn].reviews[review].author === author){
+        if(books[isbn].reviews[review].reviewer === reviewer){
             books[isbn].reviews[review].content = rev;
             return res.status(200).json({
                 message: "Review successfully edited!",
-                author: author,
+                reviewer: reviewer,
                 content: rev
             });
         }
@@ -74,36 +74,36 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
     
     numReviews++;
     books[isbn].reviews[numReviews] = {
-        "author": author,
+        "reviewer": reviewer,
         "content": rev
     };
 
     return res.status(200).json({ 
         message: "Review successfully created!",
-        author: author,
+        reviewer: reviewer,
         content: rev});
 });
 
 // Delete a book review
 regd_users.delete("/auth/review/:isbn", (req, res) => {
 
-    let author = req.session.authorization['username'];
+    let reviewer = req.session.authorization['username'];
     const isbn = req.params.isbn;
 
     for(let review in books[isbn].reviews){
-        if(books[isbn].reviews[review].author === author){
+        if(books[isbn].reviews[review].reviewer === reviewer){
             let content = books[isbn].reviews[review].content;
             delete books[isbn].reviews[review];
             return res.status(200).json({
                 message: "Review Successfully Deleted!",
-                author: author,
+                reviewer: reviewer,
                 contentRemoved: content
             });
         }
     }
     return res.status(204).json({
         message: "No Review from user found.",
-        author: author
+        reviewer: author
     });
 });
 module.exports.authenticated = regd_users;
