@@ -89,10 +89,8 @@ public_users.get('/author/:author',function (req, res) {
     });
 
     authorPromise.then((success) => {
-        console.log("Success");
         res.send(success);
     }, (failure) => {
-        console.log("Fail");
         return res.status(404).json({ message: failure });
     });
 });
@@ -104,13 +102,29 @@ public_users.get('/title/:title',function (req, res) {
     let sameTitleBooks = { };
     let numBooksFound = 0;
 
-    for(let book in books) {
-        let repTitle = books[book].title.replaceAll(" ", "_");
-        if(repTitle == title){
-            numBooksFound++;
-            sameTitleBooks[numBooksFound] = books[book];
+    let titlePromise = new Promise((resolve, reject) => {
+        for(let book in books) {
+            let repTitle = books[book].title.replaceAll(" ", "_");
+            console.log(repTitle);
+            if(repTitle == title){
+                numBooksFound++;
+                sameTitleBooks[numBooksFound] = books[book];
+                console.log(sameTitleBooks);
+            }
         }
-    }
+        if(numBooksFound > 0){
+            resolve(JSON.stringify(sameTitleBooks, null, 4));
+        } else {
+            reject("No books found with given title.");
+        }
+    });
+
+    titlePromise.then((success) => {
+        res.send(success);
+    }, (failure) => {
+        return res.status(404).json({ message: failure });
+    });
+    
     res.send(JSON.stringify(sameTitleBooks, null, 4));
 });
 
