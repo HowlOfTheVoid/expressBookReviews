@@ -105,11 +105,9 @@ public_users.get('/title/:title',function (req, res) {
     let titlePromise = new Promise((resolve, reject) => {
         for(let book in books) {
             let repTitle = books[book].title.replaceAll(" ", "_");
-            console.log(repTitle);
             if(repTitle == title){
                 numBooksFound++;
                 sameTitleBooks[numBooksFound] = books[book];
-                console.log(sameTitleBooks);
             }
         }
         if(numBooksFound > 0){
@@ -124,8 +122,6 @@ public_users.get('/title/:title',function (req, res) {
     }, (failure) => {
         return res.status(404).json({ message: failure });
     });
-    
-    res.send(JSON.stringify(sameTitleBooks, null, 4));
 });
 
 //  Get book review
