@@ -50,12 +50,15 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
+
     let author = req.session.authorization['username'];
     const rev = req.body.desc;
     const isbn = req.params.isbn;
+
     if(!rev){
         return res.status(404).json({ message: "Please provide a review description."});
     }
+
     for(let review in books[isbn].reviews){
         if(books[isbn].reviews[review].author === author){
             books[isbn].reviews[review].content = rev;
@@ -67,19 +70,42 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
         }
     }
 
-    let numReviews = Object.keys(books[req.params.isbn].reviews).length;
-    console.log(numReviews);
+    let numReviews = Object.keys(books[isbn].reviews).length;
+    
     numReviews++;
-    books[req.params.isbn].reviews[numReviews] = {
+    books[isbn].reviews[numReviews] = {
         "author": author,
         "content": rev
     };
+
     return res.status(200).json({ 
         message: "Review successfully created!",
         author: author,
         content: rev});
 });
 
+// Delete a book review
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+
+    let author = req.session.authorization['username'];
+    const isbn = req.params.isbn;
+
+    for(let review in books[isbn].reviews){
+        if(books[isbn].reviews[review].author === author){
+            let content = books[isbn].reviews[review].content;
+            delete books[isbn].reviews[review];
+            return res.status(200).json({
+                message: "Review Successfully Deleted!",
+                author: author,
+                contentRemoved: content
+            });
+        }
+    }
+    return res.status(204).json({
+        message: "No Review from user found.",
+        author: author
+    });
+});
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
