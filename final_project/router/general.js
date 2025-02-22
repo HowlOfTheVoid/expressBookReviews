@@ -49,7 +49,7 @@ public_users.get('/',function (req, res) {
 public_users.get('/isbn/:isbn',function (req, res) {
     const isbn = req.params.isbn;
 
-    let locatePromise = new Promise((resolve, reject) => {
+    let isbnPromise = new Promise((resolve, reject) => {
         foundBook = books[isbn];
         if(foundBook) {
             resolve(JSON.stringify(foundBook, null, 4));
@@ -58,30 +58,43 @@ public_users.get('/isbn/:isbn',function (req, res) {
         }
     })
 
-    locatePromise.then((success) => {
+    isbnPromise.then((success) => {
         res.send(success);
     }, (failure) => {
         return res.status(404).json({ message: failure });
-    })
+    });
  });
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
-
     const author = req.params.author;
-    // Filter the books array for all books with the same author
     let authoredBooks = { };
     let numBooksFound = 0;
 
-    for(let book in books) {
-        repAuth = books[book].author.replaceAll(" ", "_");
-        if(repAuth == author){
-            numBooksFound++;
-            authoredBooks[numBooksFound] = books[book];
-        }
-    }
-    res.send(JSON.stringify(authoredBooks, null, 4));
+    let authorPromise = new Promise((resolve, reject) => {
+        // Filter the books array for all books with the same author
 
+        for(let book in books) {
+            repAuth = books[book].author.replaceAll(" ", "_");
+            if(repAuth == author){
+                numBooksFound++;
+                authoredBooks[numBooksFound] = books[book];
+            }
+        }
+        if(numBooksFound > 0){
+            resolve(JSON.stringify(authoredBooks, null, 4));
+        } else {
+            reject("No books with given author name found.");
+        }
+    });
+
+    authorPromise.then((success) => {
+        console.log("Success");
+        res.send(success);
+    }, (failure) => {
+        console.log("Fail");
+        return res.status(404).json({ message: failure });
+    });
 });
 
 // Get all books based on title
