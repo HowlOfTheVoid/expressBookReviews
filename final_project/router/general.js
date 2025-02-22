@@ -49,7 +49,20 @@ public_users.get('/',function (req, res) {
 public_users.get('/isbn/:isbn',function (req, res) {
     const isbn = req.params.isbn;
 
-    res.send(JSON.stringify(books[isbn], null, 4));
+    let locatePromise = new Promise((resolve, reject) => {
+        foundBook = books[isbn];
+        if(foundBook) {
+            resolve(JSON.stringify(foundBook, null, 4));
+        } else{
+            reject("Could not find book with provided ISBN.");
+        }
+    })
+
+    locatePromise.then((success) => {
+        res.send(success);
+    }, (failure) => {
+        return res.status(404).json({ message: failure });
+    })
  });
   
 // Get book details based on author
